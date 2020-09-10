@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>测试thymeleaf的使用</title>
+	
+    <meta name="keywords" content="keyword1,keyword2,keyword3">
+    <meta name="description" content="this is my page">
+    <meta name="content-type" content="text/html; charset=UTF-8">
+    
+    <!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+
+  </head>
+  
+  <body>
+    <h3 th:text="${name}"></h3><br>
+    <div shiro:hasPermission="user:add">
+    	进入用户添加页面：<a href="add">用户添加</a>
+    </div>
+    <div shiro:hasPermission="user:update">
+    	进入用户编辑页面：<a href="update">用户编辑</a>
+    </div>
+    <a href="toLogin">登录</a>
+  </body>
+</html>
