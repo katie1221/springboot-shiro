@@ -3,6 +3,7 @@ package com.koncord.shiro;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -76,7 +77,10 @@ public class ShiroConfig {
 	 */
 	@Bean
 	public UserRealm userRealm(){
-		return new UserRealm();
+		UserRealm userRealm = new UserRealm();
+		//设置 凭证匹配器
+		userRealm.setCredentialsMatcher(hashedCredentialsMatcher());
+		return userRealm;
 	}
 	
 	/**
@@ -85,5 +89,19 @@ public class ShiroConfig {
 	@Bean
 	public ShiroDialect getShiroDialect(){
 		return new ShiroDialect();
+	}
+	
+	/**
+	 * 配置 凭证匹配器 （由于我们的密码校验交给Shiro的SimpleAuthenticationInfo进行处理了,
+	 * 所以我们需要修改下doGetAuthenticationInfo中的代码;）
+	 */
+	@Bean
+	public HashedCredentialsMatcher hashedCredentialsMatcher(){
+		HashedCredentialsMatcher hashedCredentialsMatcher = new HashedCredentialsMatcher();
+		//设置加密算法
+		hashedCredentialsMatcher.setHashAlgorithmName("MD5");
+		//设置加密次数，比如两次，相当于md5(md5())
+		hashedCredentialsMatcher.setHashIterations(1024);
+		return hashedCredentialsMatcher;
 	}
 }

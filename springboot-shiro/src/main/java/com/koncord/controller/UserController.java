@@ -70,7 +70,7 @@ public class UserController {
 		 */
 		//1.获取Subject
 		Subject subject=SecurityUtils.getSubject();
-		//2.封装用户数据
+		//2.封装用户数据（把用户名和密码封装为UsernamePasswordToken对象）
 		UsernamePasswordToken token = new UsernamePasswordToken(userName,password);
 		try {
 			//3.执行登录方法
@@ -79,15 +79,23 @@ public class UserController {
 			
 			//登录成功，跳转test.html
 			return "redirect:/testThymeleaf";//重定向请求
-		} catch (UnknownAccountException e) {
+		} 
+		//若没有指定的账户，则shiro会抛出UnknownAccountException 异常
+		catch (UnknownAccountException e) {
 			//登录失败
 			model.addAttribute("msg", "用户不存在");
 			return "login";//返回页面链接
-		} catch (IncorrectCredentialsException e) {
+		} 
+		//若账户存在，密码不匹配，则shiro会抛出IncorrectCredentialsException 异常
+		catch (IncorrectCredentialsException e) {
 			//登录失败
 			model.addAttribute("msg", "密码错误");
 			return "login";
 		}
+		/*//所有认证时异常的父类
+		catch (AuthenticationException e) {
+			return "login";
+		}*/
 	}
 	
 	/**
