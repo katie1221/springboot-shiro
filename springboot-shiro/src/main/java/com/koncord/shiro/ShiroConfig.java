@@ -1,9 +1,16 @@
 package com.koncord.shiro;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
+import org.apache.shiro.authc.pam.AllSuccessfulStrategy;
+import org.apache.shiro.authc.pam.AtLeastOneSuccessfulStrategy;
+import org.apache.shiro.authc.pam.AuthenticationStrategy;
+import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
+import org.apache.shiro.realm.Realm;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -67,8 +74,16 @@ public class ShiroConfig {
 	@Bean(name="securityManager")
 	public DefaultWebSecurityManager securityManager(@Qualifier("userRealm")UserRealm userRealm){
 		DefaultWebSecurityManager securityManager =new DefaultWebSecurityManager();
-		//关联realm
-		securityManager.setRealm(userRealm);
+//		//关联realm
+//		securityManager.setRealm(userRealm);
+		//设置realm（需要在realm定义之前）
+		securityManager.setAuthenticator(modularRealmAuthenticator());
+		//添加多个realms
+		List<Realm> realms =new ArrayList<Realm>();
+		realms.add(userRealm);
+		realms.add(memberRealm());
+//		realms.add(secondRealm());
+		securityManager.setRealms(realms);
 		return securityManager;
 	}
 	
@@ -81,6 +96,29 @@ public class ShiroConfig {
 		//设置 凭证匹配器
 		userRealm.setCredentialsMatcher(hashedCredentialsMatcher());
 		return userRealm;
+	}
+	
+	/**
+	 * 创建Realm:普通用户
+	 * @return
+	 */
+	@Bean
+	public MemberRealm memberRealm(){
+		MemberRealm memberRealm = new MemberRealm();
+		//设置 凭证匹配器
+		memberRealm.setCredentialsMatcher(hashedCredentialsMatcher());
+		return memberRealm;
+	}
+	
+	/**
+	 * 创建第二个Realm
+	 */
+	@Bean
+	public SecondRealm secondRealm(){
+		SecondRealm secondRealm = new SecondRealm();
+		//设置 凭证匹配器
+		secondRealm.setCredentialsMatcher(hashedCredentialsMatcherSHA());
+		return secondRealm;
 	}
 	
 	/**
@@ -103,5 +141,33 @@ public class ShiroConfig {
 		//设置加密次数，比如两次，相当于md5(md5())
 		hashedCredentialsMatcher.setHashIterations(1024);
 		return hashedCredentialsMatcher;
+	}
+	
+	/**
+	 * 配置 凭证匹配器 ,加密算法为 SHA1
+	 */
+	@Bean
+	public HashedCredentialsMatcher hashedCredentialsMatcherSHA(){
+		HashedCredentialsMatcher hashedCredentialsMatcher = new HashedCredentialsMatcher();
+		//设置加密算法
+		hashedCredentialsMatcher.setHashAlgorithmName("SHA1");
+		//设置加密次数，比如两次，相当于SHA1(SHA1())
+		hashedCredentialsMatcher.setHashIterations(1024);
+		return hashedCredentialsMatcher;
+	}
+	
+	/**
+	 * 系统自带的Realm管理，主要针对多realm
+	 */
+	@Bean
+	public ModularRealmAuthenticator modularRealmAuthenticator(){
+		//自己重写的ModularRealmAuthenticator
+		UserModularRealmAuthenticator modularRealmAuthenticator = new UserModularRealmAuthenticator();
+		//设置认证策略
+		modularRealmAuthenticator.setAuthenticationStrategy(new AtLeastOneSuccessfulStrategy());
+//		ModularRealmAuthenticator modularRealmAuthenticator = new ModularRealmAuthenticator();
+//		//设置认证策略
+//		modularRealmAuthenticator.setAuthenticationStrategy(new AllSuccessfulStrategy());
+		return modularRealmAuthenticator;
 	}
 }

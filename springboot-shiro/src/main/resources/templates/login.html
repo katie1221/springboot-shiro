@@ -17,6 +17,12 @@
     <form method="post" action="login">
        <div>用户名：<input type="text" name="userName" autocomplete="off"></div> 
        <div>密码：<input type="password" name="password" autocomplete="new-password"></div>
+       <div>用户类型：
+         <select id="loginType" name="loginType">
+           <option value="User">系统管理员</option>
+           <option value="Member">普通用户</option>
+         </select>
+       </div>
        <input type="submit" value="登录">              
     </form>
   </body>

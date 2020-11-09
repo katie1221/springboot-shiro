@@ -20,7 +20,7 @@ import com.koncord.model.User;
 import com.koncord.service.UserService;
 
 /**
- * 自定义 Realm
+ * 自定义 Realm：用于系统管理员 认证和授权
  * @author Administrator
  *
  */
@@ -31,10 +31,11 @@ public class UserRealm extends AuthorizingRealm{
 	
 	/**
 	 * 执行授权逻辑
+	 * 当访问到页面的时候，链接配置了相应的权限或者shiro标签才会执行此方法否则不会执行
 	 */
 	@Override
 	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-		System.out.println("执行授权逻辑");
+		//System.out.println("UserRealm 执行授权逻辑");
 		//给资源进行授权
 		SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
 		//添加资源的授权字符串
@@ -43,11 +44,12 @@ public class UserRealm extends AuthorizingRealm{
 		//导数据库查询当前登录用户的授权字符串
 		//获取当前登录用户
 		Subject subject=SecurityUtils.getSubject();
-		User user = (User) subject.getPrincipal(); 
-		
-		User sbUser=userService.findUserByName(user.getName());
-		
-		info.addStringPermission(sbUser.getPerms());
+		if(subject.getPrincipal() instanceof User){
+			System.out.println("UserRealm 执行授权逻辑");
+			User user = (User) subject.getPrincipal(); 
+			User sbUser=userService.findUserByName(user.getName());
+			info.addStringPermission(sbUser.getPerms());
+		}
 		return info;
 	}
 
@@ -56,7 +58,7 @@ public class UserRealm extends AuthorizingRealm{
 	 */
 	@Override
 	protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-		System.out.println("执行认证逻辑");
+		System.out.println("UserRealm 执行认证逻辑");
 		
 		//编写shiro 判断逻辑，判断用户名和密码
 		//1.判断用户名

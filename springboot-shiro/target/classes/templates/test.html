@@ -12,13 +12,18 @@
   </head>
   
   <body>
-    <h3 th:text="${name}"></h3><br>
-    <div shiro:hasPermission="user:add">
+   <div style="display: flex;"> 
+                 欢迎<div style="font-weight: bold;" th:text="${userName}"></div>访问！
+   </div>
+   <div shiro:hasPermission="User:add">
     	进入用户添加页面：<a href="add">用户添加</a>
     </div>
-    <div shiro:hasPermission="user:update">
+    <div shiro:hasPermission="User:update">
     	进入用户编辑页面：<a href="update">用户编辑</a>
     </div>
-    <a href="toLogin">登录</a>
+    <div shiro:hasPermission="Member:select">
+    	进入普通用户查看页面：<a href="list">用户查看</a>
+    </div>
+    <a href="toLogin">切换账号</a>
   </body>
 </html>
